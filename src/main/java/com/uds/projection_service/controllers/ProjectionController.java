@@ -1,8 +1,11 @@
 package com.uds.projection_service.controllers;
 
+import com.uds.projection_service.models.Film;
 import com.uds.projection_service.models.Projection;
 import com.uds.projection_service.services.ProjectionService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +29,77 @@ public class ProjectionController {
     private final ProjectionService projectionService;
     Map<String, Object> response = new HashMap<>();
 
+    @Value("${API.HOST}")
+    String apiHost;
+    @Value("${API.VIDEOS_UPLOADED_DIR}")
+    String videosUploadedDir;
+    @Value("${API.IMAGES_UPLOADED_DIR}")
+    String imagesUploadedDir;
+
     @PostMapping
-    public ResponseEntity<Projection> createProjection(@RequestBody Projection projection) {
-        Projection saved = projectionService.createProjection(projection);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<Object> createProjection(
+            @RequestParam("title") String title,
+            @RequestParam("date") LocalDateTime dateDiff,
+            @RequestParam("duration") Integer duration,
+            @RequestParam("visibility") String visibility,
+            @RequestParam("price") Float price,
+            @RequestParam("actors") String actors,
+            @RequestParam("storyling") String storyling,
+            @RequestParam("image") MultipartFile image) {
+
+        response.clear();
+
+        if (image.isEmpty()) {
+            response.put("status_code", 400);
+            response.put("message", "Please select an image file to upload");
+            return ResponseEntity.badRequest().body(null);
+        }
+        if (!image.getContentType().startsWith("image/")) {
+            response.put("status_code", 400);
+            response.put("message", "Selected file must be an image with extension [.png,.jpg,.jpeg]");
+            return ResponseEntity.badRequest().body(null);
+        }
+        String imageURI;
+        try {
+            // Save the image file to the server
+            String fileName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
+            Path path = Paths.get(imagesUploadedDir + fileName);
+            Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            imageURI = apiHost + "/images/" + fileName;
+
+        } catch (Exception e) {
+            response.put("status_code", 400);
+            response.put("message", "Selected file must be an image with extension [.png,.jpg,.jpeg]");
+            return ResponseEntity.badRequest().body(null);
+        }
+        // create film
+        Film film = new Film();
+        film.setTitle(title);
+        film.setStoryling(storyling);
+        film.setActors(actors);
+
+        // Create a new Projection object
+        Projection projection = new Projection();
+        projection.setDateDif(dateDiff);
+        projection.setDuration(duration);
+        projection.setVisibility(visibility);
+        projection.setPrice(price);
+        projection.setFilm(film);
+        projection.setImgProj(imageURI);
+
+        try {
+            // Save the projection using the service
+            Projection savedProjection = projectionService.createProjection(projection);
+            response.put("status_code", 201);
+            response.put("message", "Projection created successfully");
+            response.put("projection", savedProjection);
+            return ResponseEntity.status(201).body(response);
+        } catch (RuntimeException e) {
+            response.put("status_code", 400);
+            response.put("message", "We got an error while saving the projection");
+            return ResponseEntity.badRequest().body(null);
+        }
+
     }
 
     @GetMapping
@@ -56,10 +127,10 @@ public class ProjectionController {
 
     // end point to update projection an add a video: for perform good optimisation,
     // video will be send allone
-    @PutMapping("/{projection_id}")
+    @PutMapping("/{projection_id}/video")
     public ResponseEntity<Object> addVideoToProjection(
-            @RequestParam("video") MultipartFile video,
-            @RequestParam("projection_id") String projection_id) {
+            @PathVariable String projection_id,
+            @RequestParam("video") MultipartFile video) {
 
         response.clear();
         String videoURI;
@@ -80,16 +151,17 @@ public class ProjectionController {
             return ResponseEntity.badRequest().body(response);
         }
         try {
+
             // Save the video file to the server
-            String fileName = StringUtils.cleanPath(Objects.requireNonNull(video.getOriginalFilename()));
-            String uploadDir = "${API.VIDEOS_UPLOADED_DIR}";
-            Path path = Paths.get(uploadDir + fileName);
+            String fileName = projection_id.concat(
+                    "." + StringUtils.getFilenameExtension(Objects.requireNonNull(video.getOriginalFilename())));
+            Path path = Paths.get(videosUploadedDir + fileName);
             Files.copy(video.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            videoURI = "${API.HOST}" + "/projection/videos/" + fileName;
+            videoURI = apiHost + "/videos/" + fileName;
 
             try {
                 // update the projection with the video URI
-                // projectionService.addVideoToProjection(projection_id, videoURI);
+                projectionService.addVideoToProjection(projection_id, videoURI);
                 response.put("status_code", 400);
                 response.put("message", "video added successfully");
                 response.put("video_uri", videoURI);

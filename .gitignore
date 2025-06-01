@@ -2,6 +2,7 @@ HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
+!**/src/main/java/com/uds/projection_service/resources/projection/
 !**/src/test/**/target/
 
 ### STS ###
