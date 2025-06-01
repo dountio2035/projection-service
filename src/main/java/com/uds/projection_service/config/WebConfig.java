@@ -1,5 +1,4 @@
-package com.uds.projection_service;
-
+package com.uds.projection_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
