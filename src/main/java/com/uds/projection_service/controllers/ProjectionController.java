@@ -59,7 +59,7 @@ public class ProjectionController {
     @PutMapping("/{projection_id}")
     public ResponseEntity<Object> addVideoToProjection(
             @RequestParam("video") MultipartFile video,
-            @RequestParam("projection_id") Long projection_id) {
+            @RequestParam("projection_id") String projection_id) {
 
         response.clear();
         String videoURI;
@@ -88,14 +88,15 @@ public class ProjectionController {
             videoURI = "${API.HOST}" + "/projection/videos/" + fileName;
 
             try {
-
+                // update the projection with the video URI
+                // projectionService.addVideoToProjection(projection_id, videoURI);
                 response.put("status_code", 400);
                 response.put("message", "video added successfully");
                 response.put("video_uri", videoURI);
                 return ResponseEntity.badRequest().body(response);
             } catch (Exception e) {
                 response.put("status_code", 400);
-                response.put("message", "We got an error while saving the image");
+                response.put("message", "We got an error while saving the video");
                 return ResponseEntity.badRequest().body(response);
             }
 
@@ -111,8 +112,5 @@ public class ProjectionController {
         projectionService.deleteProjection(id);
         return ResponseEntity.noContent().build();
     }
-
-   
-
 
 }

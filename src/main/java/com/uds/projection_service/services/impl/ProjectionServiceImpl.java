@@ -1,6 +1,5 @@
 package com.uds.projection_service.services.impl;
 
-
 import com.uds.projection_service.models.Film;
 import com.uds.projection_service.models.Projection;
 import com.uds.projection_service.repositories.ProjectionRepository;
@@ -8,7 +7,6 @@ import com.uds.projection_service.services.ProjectionService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +16,6 @@ import java.util.Optional;
 public class ProjectionServiceImpl implements ProjectionService {
 
     private final ProjectionRepository projectionRepository;
-    private Film film;
 
     @Override
     public Projection createProjection(Projection projection) {
@@ -67,12 +64,12 @@ public class ProjectionServiceImpl implements ProjectionService {
 
     @Override
     public Projection addVideoToProjection(String projectionId, String video_uri) {
-    return projectionRepository.findById(projectionId)
-            .map(projection -> {
-                projection.getFilm().setVideo(video_uri); // Ajoute le film à la projection
-                return projectionRepository.save(projection);
-            })
-            .orElseThrow(() -> new RuntimeException("Projection non trouvée avec l'id : " + projectionId));
-}
+        return projectionRepository.findById(projectionId)
+                .map(projection -> {
+                    projection.getFilm().setVideo(video_uri); // Ajoute le film à la projection
+                    return projectionRepository.save(projection);
+                })
+                .orElseThrow(() -> new RuntimeException("Projection non trouvée avec l'id : " + projectionId));
+    }
 
 }
