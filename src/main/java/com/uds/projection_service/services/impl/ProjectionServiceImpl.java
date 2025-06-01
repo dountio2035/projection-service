@@ -18,6 +18,7 @@ import java.util.Optional;
 public class ProjectionServiceImpl implements ProjectionService {
 
     private final ProjectionRepository projectionRepository;
+    private Film film;
 
     @Override
     public Projection createProjection(Projection projection) {
@@ -34,29 +35,30 @@ public class ProjectionServiceImpl implements ProjectionService {
         return projectionRepository.findById(id);
     }
 
- @Override
-public Projection updateProjection(String id, Projection updatedProjection) {
-    return projectionRepository.findById(id)
-            .map(projection -> {
-              
-                if (updatedProjection.getDateDif() != null) {
-                    projection.setDateDif(updatedProjection.getDateDif());
-                }
-                if (updatedProjection.getDuration() != null) {
-                    projection.setDuration(updatedProjection.getDuration());
-                }
-                if (updatedProjection.getImgProj() != null) {
-                    projection.setImgProj(updatedProjection.getImgProj());
-                }
-                /* if (updatedProjection.getFilmId() != null) {
-                    projection.setFilmId(updatedProjection.getFilmId());
-                } */
+    @Override
+    public Projection updateProjection(String id, Projection updatedProjection) {
+        return projectionRepository.findById(id)
+                .map(projection -> {
 
-                return projectionRepository.save(projection);
-            })
-            .orElseThrow(() -> new RuntimeException("Projection non trouvée avec l'id : " + id));
-}
+                    if (updatedProjection.getDateDif() != null) {
+                        projection.setDateDif(updatedProjection.getDateDif());
+                    }
+                    if (updatedProjection.getDuration() != null) {
+                        projection.setDuration(updatedProjection.getDuration());
+                    }
+                    if (updatedProjection.getImgProj() != null) {
+                        projection.setImgProj(updatedProjection.getImgProj());
+                    }
+                    /*
+                     * if (updatedProjection.getFilmId() != null) {
+                     * projection.setFilmId(updatedProjection.getFilmId());
+                     * }
+                     */
 
+                    return projectionRepository.save(projection);
+                })
+                .orElseThrow(() -> new RuntimeException("Projection non trouvée avec l'id : " + id));
+    }
 
     @Override
     public void deleteProjection(String id) {
@@ -64,14 +66,13 @@ public Projection updateProjection(String id, Projection updatedProjection) {
     }
 
     @Override
-    public Projection addFilmToProjection(String projectionId, Film film, MultipartFile file) {
+    public Projection addVideoToProjection(String projectionId, String video_uri) {
     return projectionRepository.findById(projectionId)
             .map(projection -> {
-                projection.setFilm(film); // Ajoute le film à la projection
+                projection.getFilm().setVideo(video_uri); // Ajoute le film à la projection
                 return projectionRepository.save(projection);
             })
             .orElseThrow(() -> new RuntimeException("Projection non trouvée avec l'id : " + projectionId));
 }
 
 }
-

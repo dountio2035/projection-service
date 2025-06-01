@@ -1,12 +1,10 @@
 package com.uds.projection_service.services;
 
-import com.uds.projection_service.models.Film;
 import com.uds.projection_service.models.Projection;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.web.multipart.MultipartFile;
 
 public interface ProjectionService {
 
@@ -20,6 +18,5 @@ public interface ProjectionService {
 
     void deleteProjection(String id);
 
-    Projection addFilmToProjection(String projectionId, Film film, MultipartFile file);
+    Projection addVideoToProjection(String projectionId, String video_uri);
 }
-

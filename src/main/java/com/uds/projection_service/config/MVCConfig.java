@@ -10,8 +10,8 @@ public class MVCConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(@SuppressWarnings("null") ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-        .addResourceHandler("/videos/**")
-                .addResourceLocations("classpath:/projection/images/")
+                .addResourceLocations("classpath:/projection/images/");
+        registry.addResourceHandler("/videos/**")
                 .addResourceLocations("classpath:/projection/videos/");
     }
 }
