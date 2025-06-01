@@ -19,7 +19,7 @@ public class ProjectionController {
 
     @PostMapping
     public ResponseEntity<Projection> createProjection(@RequestBody Projection projection) {
-         Projection saved = projectionService.createProjection(projection);
+        Projection saved = projectionService.createProjection(projection);
         return ResponseEntity.ok(saved);
     }
 
@@ -46,6 +46,14 @@ public class ProjectionController {
         }
     }
 
+    // end point to update projection an add a video: for perform good optimisation,
+    // video will be send allone
+    @PutMapping("/{projection_id}")
+    public ResponseEntity<Object> addVideoToProjection(@PathVariable String projection_id,
+            @multipart(name = "videoId") File video) {
+
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProjection(@PathVariable String id) {
         projectionService.deleteProjection(id);
@@ -67,4 +75,3 @@ public class ProjectionController {
 
 
 }
-
