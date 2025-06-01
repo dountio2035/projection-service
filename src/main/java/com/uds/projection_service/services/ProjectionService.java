@@ -17,4 +17,3 @@ public interface ProjectionService {
 
     void deleteProjection(String id);
 }
-
