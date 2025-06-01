@@ -1,10 +1,12 @@
 package com.uds.projection_service.controllers;
 
+import com.uds.projection_service.models.Film;
 import com.uds.projection_service.models.Projection;
 import com.uds.projection_service.services.ProjectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -49,5 +51,20 @@ public class ProjectionController {
         projectionService.deleteProjection(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/add-film")
+    public ResponseEntity<Projection> addFilmToProjection(
+        @PathVariable String id,
+        @RequestPart("film") Film film,
+        @RequestPart(value = "file", required = false) MultipartFile file) {
+    try {
+        Projection updated = projectionService.addFilmToProjection(id, film, file);
+        return ResponseEntity.ok(updated);
+    } catch (RuntimeException e) {
+        return ResponseEntity.notFound().build();
+    }
+}
+
+
 }
 

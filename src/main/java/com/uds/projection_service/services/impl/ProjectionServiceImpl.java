@@ -1,12 +1,14 @@
 package com.uds.projection_service.services.impl;
 
 
+import com.uds.projection_service.models.Film;
 import com.uds.projection_service.models.Projection;
 import com.uds.projection_service.repositories.ProjectionRepository;
 import com.uds.projection_service.services.ProjectionService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,5 +62,16 @@ public Projection updateProjection(String id, Projection updatedProjection) {
     public void deleteProjection(String id) {
         projectionRepository.deleteById(id);
     }
+
+    @Override
+    public Projection addFilmToProjection(String projectionId, Film film, MultipartFile file) {
+    return projectionRepository.findById(projectionId)
+            .map(projection -> {
+                projection.setFilm(film); // Ajoute le film à la projection
+                return projectionRepository.save(projection);
+            })
+            .orElseThrow(() -> new RuntimeException("Projection non trouvée avec l'id : " + projectionId));
+}
+
 }
 
