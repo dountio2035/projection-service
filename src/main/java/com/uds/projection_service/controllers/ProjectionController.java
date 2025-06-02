@@ -39,10 +39,10 @@ public class ProjectionController {
     @PostMapping
     public ResponseEntity<Object> createProjection(
             @RequestParam("title") String title,
-            @RequestParam("date") LocalDateTime dateDiff,
-            @RequestParam("duration") Integer duration,
+            @RequestParam("date") String dateDiff,
+            @RequestParam("duration") String duration,
             @RequestParam("visibility") String visibility,
-            @RequestParam("price") Float price,
+            @RequestParam("price") String price,
             @RequestParam("actors") String actors,
             @RequestParam("storyling") String storyling,
             @RequestParam("image") MultipartFile image) {
@@ -68,9 +68,11 @@ public class ProjectionController {
             imageURI = apiHost + "/images/" + fileName;
 
         } catch (Exception e) {
+
             response.put("status_code", 400);
             response.put("message", "Selected file must be an image with extension [.png,.jpg,.jpeg]");
             return ResponseEntity.badRequest().body(null);
+
         }
         // create film
         Film film = new Film();
@@ -80,20 +82,22 @@ public class ProjectionController {
 
         // Create a new Projection object
         Projection projection = new Projection();
-        projection.setDateDif(dateDiff);
-        projection.setDuration(duration);
+        projection.setDateDif(LocalDateTime.parse(dateDiff));
+        projection.setDuration(Integer.parseInt(duration));
         projection.setVisibility(visibility);
-        projection.setPrice(price);
+        projection.setPrice(Float.parseFloat(price));
         projection.setFilm(film);
         projection.setImgProj(imageURI);
 
         try {
+
             // Save the projection using the service
             Projection savedProjection = projectionService.createProjection(projection);
             response.put("status_code", 201);
             response.put("message", "Projection created successfully");
             response.put("projection", savedProjection);
             return ResponseEntity.status(201).body(response);
+
         } catch (RuntimeException e) {
             response.put("status_code", 400);
             response.put("message", "We got an error while saving the projection");
